@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon Nexus</title>
+    <style>
+        :root {
+            --gold: #d4af37;
+            --white: #ffffff;
+            --dark: #111;
+        }
+        body {
+            margin: 0;
+            background: radial-gradient(circle, #fdfdfd 0%, #e5e5e5 100%);
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* The Dragon & Background Merge */
+        .dragon-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .dragon-icon {
+            font-size: 100px;
+            color: var(--gold);
+            filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.5));
+            z-index: 2;
+        }
+        .glow-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: pulse 3s infinite ease-in-out;
+        }
+
+        /* Menu Buttons */
+        .menu-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 250px;
+            z-index: 10;
+        }
+        button {
+            padding: 15px;
+            border: 2px solid var(--gold);
+            background: white;
+            color: var(--dark);
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        button:active {
+            transform: scale(0.95);
+            background: var(--gold);
+            color: white;
+        }
+
+        /* Spec Panel (Hidden by default) */
+        #spec-panel {
+            display: none;
+            position: absolute;
+            background: rgba(255,255,255,0.95);
+            border: 1px solid var(--gold);
+            padding: 20px;
+            border-radius: 10px;
+            width: 280px;
+            top: 50%;
+            transform: translateY(-50%);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        /* FPS Display */
+        #fps-display {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--dark);
+            color: var(--gold);
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 0.7rem;
+            color: #888;
+            letter-spacing: 1px;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.3; }
+            50% { transform: scale(1.1); opacity: 0.6; }
+            100% { transform: scale(1); opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dragon-container">
+        <div class="glow-ring"></div>
+        <div class="dragon-icon">🐉</div>
+    </div>
+
+    <div class="menu-container">
+        <button onclick="toggleFPS()">FPS Tester</button>
+        <button onclick="toggleSpecs()">Specs</button>
+    </div>
+
+    <div id="spec-panel">
+        <h3 style="color:var(--gold); margin-top:0;">System Details</h3>
+        <p><b>Model:</b> <span id="m-model">Loading...</span></p>
+        <p><b>OS:</b> <span id="m-os">Android</span></p>
+        <p><b>Brain:</b> Gemini 3 Flash</p>
+        <button onclick="toggleSpecs()" style="padding:5px; width:100%; font-size:0.7rem;">Close</button>
+    </div>
+
+    <div id="fps-display">FPS: <span id="fps-val">60</span></div>
+
+    <div class="footer">#made by gabzitself.</div>
+
+<script>
+    // Spec Logic
+    async function initSpecs() {
+        const ua = navigator.userAgent;
+        let model = "Android Device";
+        if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
+            const hints = await navigator.userAgentData.getHighEntropyValues(['model']);
+            if (hints.model) model = hints.model;
+        }
+        document.getElementById('m-model').innerText = model;
+    }
+    initSpecs();
+
+    function toggleSpecs() {
+        const panel = document.getElementById('spec-panel');
+        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+    }
+
+    // FPS Logic
+    let fpsActive = false;
+    let frames = 0;
+    let lastTime = performance.now();
+    function updateFPS() {
+        if (!fpsActive) return;
+        frames++;
+        let time = performance.now();
+        if (time >= lastTime + 1000) {
+            document.getElementById('fps-val').innerText = frames;
+            frames = 0;
+            lastTime = time;
+        }
+        requestAnimationFrame(updateFPS);
+    }
+
+    function toggleFPS() {
+        fpsActive = !fpsActive;
+        const disp = document.getElementById('fps-display');
+        disp.style.display = fpsActive ? 'block' : 'none';
+        if (fpsActive) updateFPS();
+    }
+</script>
+
+</body>
+</html>
